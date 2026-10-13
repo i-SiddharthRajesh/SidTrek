@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session
 from models import db, Trek, User, Booking
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
@@ -39,9 +39,16 @@ def get_trek(tid):
 
 @api_bp.route("/users/<int:uid>", methods=["GET"])
 def get_user(uid):
+    if "user_id" not in session:
+        return jsonify({"error": "Authentication required"}), 401
+
+    if session.get("user_id") != uid and session.get("role") != "admin":
+        return jsonify({"error": "Forbidden"}), 403
+
     u = User.query.get(uid)
     if not u:
         return jsonify({"error": "User not found"}), 404
+
     return jsonify({
         "id": u.id,
         "username": u.username,
@@ -52,9 +59,16 @@ def get_user(uid):
 
 @api_bp.route("/bookings/<int:bid>", methods=["GET"])
 def get_booking(bid):
+    if "user_id" not in session:
+        return jsonify({"error": "Authentication required"}), 401
+
     b = Booking.query.get(bid)
     if not b:
         return jsonify({"error": "Booking not found"}), 404
+
+    if session.get("user_id") != b.user_id and session.get("role") != "admin":
+        return jsonify({"error": "Forbidden"}), 403
+
     return jsonify({
         "id": b.id,
         "user_id": b.user_id,

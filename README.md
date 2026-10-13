@@ -2,7 +2,7 @@
 
 A comprehensive Flask-based web application for managing adventure trekking activities. It streamlines operations for administrators, empowers trek staff to manage participants, and allows users to easily book and track their expeditions.
 
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-3.0+-green.svg)](https://flask.palletsprojects.com/)
 [![SQLite](https://img.shields.io/badge/Database-SQLite-orange.svg)](https://www.sqlite.org/)
 ---
@@ -54,7 +54,8 @@ Three distinct user portals with specific permissions:
 - **Chart.js** — Interactive dashboard visualizations
 
 ### Database
-- **SQLite** — Lightweight relational database
+- **SQLite** — Lightweight relational database for local development
+- **PostgreSQL** — Relational database for hosted deployments
 
 ---
 
@@ -133,8 +134,8 @@ Three distinct user portals with specific permissions:
 |--------|----------|-------------|--------|
 | GET | `/api/treks` | Get all open treks | Public |
 | GET | `/api/treks/<id>` | Get specific trek details | Public |
-| GET | `/api/users/<id>` | Get user details | Public |
-| GET | `/api/bookings/<id>`| Get booking details | Public |
+| GET | `/api/users/<id>` | Get user details | Account owner or admin |
+| GET | `/api/bookings/<id>`| Get booking details | Booking owner or admin |
 
 ---
 
@@ -144,7 +145,7 @@ Three distinct user portals with specific permissions:
 SidTrek/
 ├── app.py                      # Flask application entry point
 ├── models.py                   # SQLAlchemy database models
-├── seed.py                     # Demo data generator
+├── seed.py                     # Local demo data generator
 ├── requirements.txt            # Python dependencies
 ├── routes/                     # Authentication, admin, staff, user, and API routes
 ├── templates/                  # Jinja2 HTML templates
@@ -157,7 +158,7 @@ SidTrek/
 ├── static/
 │   ├── css/style.css
 │   └── images/trekking.png
-└── instance/                   # Created at runtime; local database files are ignored
+└── instance/                   # Runtime data directory (local SQLite DB is ignored)
 ```
 
 ## 🚀 Quick Start
@@ -190,29 +191,33 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-### 4. Set a session secret
+### 4. Configure environment variables
 
-SidTrek reads its Flask session-signing key from the `SECRET_KEY` environment variable. Generate a fresh value for local development and set it in the terminal you're using to run the app.
+SidTrek requires a Flask session-signing key. On a fresh database, it also uses `ADMIN_BOOTSTRAP_PASSWORD` to create the first administrator account.
 
 **macOS / Linux**
 ```bash
 export SECRET_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')"
+export ADMIN_BOOTSTRAP_PASSWORD="choose-a-strong-unique-password"
 ```
 
 **Windows PowerShell**
 ```powershell
 $env:SECRET_KEY = python -c "import secrets; print(secrets.token_hex(32))"
+$env:ADMIN_BOOTSTRAP_PASSWORD = "choose-a-strong-unique-password"
 ```
 
-Do not commit the secret or share it. For a persistent deployment, configure `SECRET_KEY` using your hosting provider's environment-variable settings.
+The admin username is `admin`; the initial password is the value you set for `ADMIN_BOOTSTRAP_PASSWORD`. This variable is used only if no admin account exists yet. Existing local databases may still contain the old development admin account, so do not expose those credentials on a public deployment.
 
-### 5. (Optional) Populate demo data
+Never commit secrets or use the example password above as a real password.
+
+### 5. (Optional) Populate local demo data
 
 ```bash
 python seed.py
 ```
 
-**Warning:** `seed.py` deletes existing bookings, treks, and non-admin users before generating demo records. Run it only against a development/demo database, never against data you need to keep.
+**Warning:** `seed.py` deletes existing bookings, treks, and non-admin users before generating sample records. Run it only against a disposable local database—never against a hosted or production database.
 
 ### 6. Start the application
 
@@ -222,17 +227,30 @@ python app.py
 
 Open **http://127.0.0.1:5000** in your browser.
 
-## 🔑 Demo Credentials
+## ☁️ Deploy a Live Demo
 
-If you generated data using `seed.py`, you can use the following credentials to explore the system:
+SidTrek can be deployed as a Flask web service on Render, with Neon PostgreSQL keeping accounts, treks, and bookings outside the web service's temporary filesystem.
 
-| Role | Username | Password |
-|------|----------|----------|
-| **Admin** | `admin` | `admin123` |
-| **Staff** | `staff_alex_1` | `password123` |
-| **User** | `trekker_alex_1` | `password123` |
+1. Create a PostgreSQL project on [Neon](https://neon.tech/) and copy its connection string (with SSL enabled).
+2. In [Render](https://render.com/), create a **New → Web Service** and connect this GitHub repository. Authorize Render to access the private repository if prompted.
+3. Select the `main` branch and use these settings:
 
-*(Note: The seed script randomly generates first names, so the exact staff and user usernames will vary, but their passwords are always `password123`.)*
+   | Setting | Value |
+   |---|---|
+   | Build command | `pip install -r requirements.txt` |
+   | Start command | `gunicorn app:app` |
+   | `SECRET_KEY` | A fresh random secret |
+   | `ADMIN_BOOTSTRAP_PASSWORD` | A strong, unique administrator password |
+   | `DATABASE_URL` | The Neon PostgreSQL connection string |
+
+4. Create the service. On an empty database, SidTrek creates the initial `admin` account using `ADMIN_BOOTSTRAP_PASSWORD`.
+5. Open the `onrender.com` URL provided by Render.
+
+Do not run `seed.py` against the hosted database; it deletes data before creating sample records. Render's free web services can spin down when idle, so the first request after inactivity may take about a minute. Keep all secrets in your hosting provider's environment settings, not in Git.
+
+## 🧪 Demo Data
+
+The optional `seed.py` script creates sample staff and trekker accounts with the development password `password123`. These are for local testing only. Do not run the seed script against your hosted database or use sample credentials for real accounts.
 
 ---
 <div align="center">

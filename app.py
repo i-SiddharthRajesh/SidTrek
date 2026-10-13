@@ -14,7 +14,17 @@ if not secret_key:
         "SECRET_KEY is required. Set it in your environment before starting SidTrek."
     )
 app.config["SECRET_KEY"] = secret_key
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(BASE_DIR, "instance", "trekking.db")
+database_url = os.environ.get("DATABASE_URL", "").strip()
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql+psycopg://", 1)
+elif database_url.startswith("postgresql://"):
+    database_url = database_url.replace("postgresql://", "postgresql+psycopg://", 1)
+
+if database_url:
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+else:
+    # SQLite is convenient for local development. Use DATABASE_URL for hosted PostgreSQL.
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(BASE_DIR, "instance", "trekking.db")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # ── Database ─────────────────────────────────────────────────────────
@@ -24,16 +34,23 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(role="admin").first():
-        admin = User(
-            username="admin",
-            email="admin@trekking.com",
-            password=generate_password_hash("admin123"),
-            full_name="System Administrator",
-            phone="0123456789",
-            role="admin",
-        )
-        db.session.add(admin)
-        db.session.commit()
+        admin_password = os.environ.get("ADMIN_BOOTSTRAP_PASSWORD")
+        if admin_password:
+            admin = User(
+                username="admin",
+                email="admin@trekking.com",
+                password=generate_password_hash(admin_password),
+                full_name="System Administrator",
+                phone="",
+                role="admin",
+            )
+            db.session.add(admin)
+            db.session.commit()
+        else:
+            app.logger.warning(
+                "No admin account exists yet. Set ADMIN_BOOTSTRAP_PASSWORD "
+                "before the first startup to create the initial admin."
+            )
 
 # ── Blueprints ───────────────────────────────────────────────────────
 app.register_blueprint(auth_bp)
