@@ -8,7 +8,12 @@ app = Flask(__name__)
 
 # Config
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "trekking-secret-key-2026")
+secret_key = os.environ.get("SECRET_KEY")
+if not secret_key:
+    raise RuntimeError(
+        "SECRET_KEY is required. Set it in your environment before starting SidTrek."
+    )
+app.config["SECRET_KEY"] = secret_key
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(BASE_DIR, "instance", "trekking.db")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 

@@ -140,70 +140,87 @@ Three distinct user portals with specific permissions:
 
 ## 📁 Project Structure
 
-```
-Trekking_management/
-│
-├── app.py                      # Application entry point
-├── models.py                   # SQLAlchemy models
-├── config.py                   # Configuration settings
-├── helpers.py                  # Utility functions
+```text
+SidTrek/
+├── app.py                      # Flask application entry point
+├── models.py                   # SQLAlchemy database models
 ├── seed.py                     # Demo data generator
-│
-├── routes/                     # Blueprint definitions
-│   ├── __init__.py
-│   ├── auth.py
-│   ├── admin.py
-│   ├── staff.py
-│   ├── user.py
-│   └── api.py
-│
-├── templates/                  # Jinja2 HTML Templates
+├── requirements.txt            # Python dependencies
+├── routes/                     # Authentication, admin, staff, user, and API routes
+├── templates/                  # Jinja2 HTML templates
 │   ├── base.html
 │   ├── landing.html
 │   ├── auth/
 │   ├── admin/
 │   ├── staff/
 │   └── user/
-│
 ├── static/
-│   └── css/style.css           # Custom stylesheets
-│
-└── instance/                   # SQLite database
+│   ├── css/style.css
+│   └── images/trekking.png
+└── instance/                   # Created at runtime; local database files are ignored
 ```
-
----
 
 ## 🚀 Quick Start
 
+### 1. Clone the repository
+
 ```bash
-# 1. Clone the repository
-git clone <your-repo-link>
-cd Trekking_management
+git clone https://github.com/i-SiddharthRajesh/SidTrek.git
+cd SidTrek
+```
 
-# 2. Create a virtual environment
-python -m venv venv
+### 2. Create and activate a virtual environment
 
-# 3. Activate the virtual environment
-# Windows
-venv\Scripts\activate
-# macOS / Linux
-source venv/bin/activate
+**macOS / Linux**
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
 
-# 4. Install dependencies
-pip install -r requirements.txt
+**Windows PowerShell**
+```powershell
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+```
 
-# 5. Generate Demo Data (Optional but recommended)
+### 3. Install dependencies
+
+```bash
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+### 4. Set a session secret
+
+SidTrek reads its Flask session-signing key from the `SECRET_KEY` environment variable. Generate a fresh value for local development and set it in the terminal you're using to run the app.
+
+**macOS / Linux**
+```bash
+export SECRET_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')"
+```
+
+**Windows PowerShell**
+```powershell
+$env:SECRET_KEY = python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+Do not commit the secret or share it. For a persistent deployment, configure `SECRET_KEY` using your hosting provider's environment-variable settings.
+
+### 5. (Optional) Populate demo data
+
+```bash
 python seed.py
+```
 
-# 6. Run the application
+**Warning:** `seed.py` deletes existing bookings, treks, and non-admin users before generating demo records. Run it only against a development/demo database, never against data you need to keep.
+
+### 6. Start the application
+
+```bash
 python app.py
 ```
 
-> ⚠️ **Note:** The `seed.py` script is provided strictly for generating demo data and populating the database during development or evaluation. It should not be included in your main production project deployment.
-
-The application will start on **http://127.0.0.1:5000**
-
----
+Open **http://127.0.0.1:5000** in your browser.
 
 ## 🔑 Demo Credentials
 
