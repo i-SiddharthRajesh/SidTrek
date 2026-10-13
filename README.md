@@ -219,5 +219,5 @@ If you generated data using `seed.py`, you can use the following credentials to 
 
 ---
 <div align="center">
-Made with ❤️ by Parth Sharma
+Made with ❤️ by Siddharth Rajesh
 </div>
