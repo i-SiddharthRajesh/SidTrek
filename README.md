@@ -40,7 +40,7 @@ Three distinct user portals with specific permissions:
 
 ---
 
-## 🛠 Technology Stack
+##  Technology Stack
 
 ### Backend
 - **Flask** — Lightweight Python web framework
@@ -58,7 +58,7 @@ Three distinct user portals with specific permissions:
 
 ---
 
-## 🗄 Database Schema
+##  Database Schema
 
 ### Entity Relationship Diagram
 
@@ -93,7 +93,7 @@ Three distinct user portals with specific permissions:
 
 ---
 
-## 📡 Route Design
+##  Route Design
 
 ### Authentication
 | Method | Endpoint | Description | Access |
@@ -138,7 +138,7 @@ Three distinct user portals with specific permissions:
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```text
 SidTrek/
