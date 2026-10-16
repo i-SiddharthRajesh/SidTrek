@@ -1,4 +1,4 @@
-# 🏕️ SidTrek - Trekking Management Application
+#  SidTrek - Trekking Management Application
 
 A comprehensive Flask-based web application for managing adventure trekking activities. It streamlines operations for administrators, empowers trek staff to manage participants, and allows users to easily book and track their expeditions.
 
@@ -9,9 +9,9 @@ A comprehensive Flask-based web application for managing adventure trekking acti
 
 🌟 Enjoying this project? Don't forget to give this repository a star on GitHub!
 
-## ✨ Features
+##  Features
 
-### 🔐 Role-Based Access Control
+###  Role-Based Access Control
 Three distinct user portals with specific permissions:
 
 #### Admin Portal
@@ -160,7 +160,7 @@ SidTrek/
 └── instance/                   # Created at runtime; local database files are ignored
 ```
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### 1. Clone the repository
 
@@ -222,7 +222,7 @@ python app.py
 
 Open **http://127.0.0.1:5000** in your browser.
 
-## 🔑 Demo Credentials
+##  Demo Credentials
 
 If you generated data using `seed.py`, you can use the following credentials to explore the system:
 
